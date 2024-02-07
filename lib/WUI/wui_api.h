@@ -128,6 +128,20 @@ void add_time_to_timestamp(int32_t secs_to_add, struct tm *timestamp);
 ///
 /// @return Return a password
 const char *wui_get_password();
+void wui_store_password(char *, uint32_t);
+
+////////////////////////////////////////////////////////////////////////////
+/// @brief Authorization username for PrusaLink
+///
+/// @return Return a username
+const char *wui_get_username();
+void wui_store_username(char *, uint32_t);
+
+////////////////////////////////////////////////////////////////////////////
+/// @brief Load PrusaLink username and/or user password from settings
+///
+/// @return Return flags for fields found (0x01 if username, 0x02 if psw)
+uint8_t wui_load_ini_file();
 
 ////////////////////////////////////////////////////////////////////////////
 /// @brief Generate authorization password for PrusaLink
@@ -135,8 +149,6 @@ const char *wui_get_password();
 /// @param[out] buffer password buffer
 /// @param[in] length Size of the buffer
 void wui_generate_password(char *, uint32_t);
-
-void wui_store_password(char *, uint32_t);
 
 #ifdef __cplusplus
 enum class StartPrintResult {

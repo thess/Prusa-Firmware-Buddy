@@ -70,6 +70,7 @@ namespace defaults {
 #endif
     };
     inline constexpr std::array<char, pl_password_size> prusalink_password { "" };
+    inline constexpr std::array<char, pl_username_size> prusalink_username { "" };
 
     inline constexpr std::array<char, connect_host_size + 1> connect_host {
 #if PRINTER_IS_PRUSA_iX()

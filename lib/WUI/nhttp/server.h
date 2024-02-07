@@ -72,6 +72,10 @@ public:
      */
     virtual const char *get_password() const = 0;
     /**
+     * \brief Fetch username.
+     */
+    virtual const char *get_username() const = 0;
+    /**
      * \brief Allocate the listener socket.
      */
     virtual altcp_pcb *listener_alloc() const = 0;
@@ -435,6 +439,10 @@ public:
 
     const char *get_password() const {
         return defs.get_password();
+    }
+
+    const char *get_username() const {
+        return defs.get_username();
     }
 
     void inject_transfer(altcp_pcb *conn, pbuf *data, uint16_t data_offset, splice::Transfer *transfer, size_t expected_data);

@@ -21,6 +21,7 @@ inline constexpr size_t connect_host_size { 20 };
 inline constexpr size_t connect_proxy_size { 30 };
 inline constexpr size_t connect_token_size { 20 };
 inline constexpr size_t pl_password_size { 16 };
+inline constexpr size_t pl_username_size { 12 };
 inline constexpr size_t wifi_max_ssid_len { 32 };
 inline constexpr size_t wifi_max_passwd_len { 64 };
 

@@ -264,6 +264,7 @@ struct CurrentStore
     StoreItem<uint8_t, 0, ItemFlag::network, journal::hash("Active NetDev")> active_netdev; // active network device
     StoreItem<bool, defaults::prusalink_enabled, ItemFlag::network, journal::hash("PrusaLink Enabled")> prusalink_enabled;
     StoreItem<std::array<char, pl_password_size>, defaults::prusalink_password, ItemFlag::network, journal::hash("PrusaLink Password")> prusalink_password;
+    StoreItem<std::array<char, pl_username_size>, defaults::prusalink_username, ItemFlag::network, journal::hash("PrusaLink Username")> prusalink_username;
 
     StoreItem<std::array<char, connect_host_size + 1>, defaults::connect_host, ItemFlag::network | ItemFlag::dev_items, journal::hash("Connect Host")> connect_host;
     StoreItem<std::array<char, connect_token_size + 1>, defaults::connect_token, ItemFlag::network, journal::hash("Connect Token")> connect_token;
