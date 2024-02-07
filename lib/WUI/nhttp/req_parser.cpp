@@ -390,7 +390,7 @@ bool RequestParser::check_digest_auth(uint64_t nonce_to_use) const {
             // Login disabled
             return false;
         }
-        auto hash_a1 = md5_hash(PRUSA_LINK_USERNAME, ":", AUTH_REALM, ":", pass);
+        auto hash_a1 = md5_hash(server->get_username(), ":", AUTH_REALM, ":", pass);
         auto hash_a2 = md5_hash(to_str(method), ":", uri());
 
         char ha1[MD5_HEX_SIZE];

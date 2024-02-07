@@ -389,6 +389,9 @@ void MI_LOAD_SETTINGS::click(IWindowMenu & /*window_menu*/) {
     }
     build_message(msg_builder, _("Network"), network_settings_loaded);
 
+    // Report PrusaLink settings read
+    build_message(msg_builder, _("PrusaLink"), wui_load_ini_file());
+
 #if BUDDY_ENABLE_CONNECT()
     build_message(msg_builder, _("Connect"), connect_client::MarlinPrinter::load_cfg_from_ini());
 #endif

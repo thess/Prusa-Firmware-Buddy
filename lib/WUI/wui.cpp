@@ -16,6 +16,7 @@
 
 #include "sntp_client.h"
 #include "log.h"
+#include "ini_handler.h"
 
 #include <atomic>
 #include <array>
@@ -73,14 +74,60 @@ void wui_store_password(char *password, uint32_t length) {
     config_store().prusalink_password.set(password, length);
 }
 
+void wui_store_username(char *username, uint32_t length) {
+    config_store().prusalink_username.set(username, length);
+}
+
+int wui_ini_handler(void *user, const char *section, const char *name, const char *value) {
+    if (user != nullptr || section == nullptr || name == nullptr || value == nullptr) {
+        // Stop parsing
+        return 0;
+    }
+
+    // Looking for our section
+    if (strcmp("prusalink", section)) {
+        return 1;
+    }
+
+    size_t len = strlen(value);
+
+    if (strcmp(name, "user") == 0) {
+        if (len <= config_store_ns::pl_username_size - 1) {
+            // Store new name if different
+            if (strncmp(value, config_store().prusalink_username.get_c_str(), config_store_ns::pl_username_size)) {
+                wui_store_username((char *)value, config_store_ns::pl_username_size);
+            }
+        }
+    } else if (strcmp(name, "psw") == 0) {
+        if (len <= config_store_ns::pl_password_size - 1) {
+            // Store new psw if different
+            if (strncmp(value, config_store().prusalink_password.get_c_str(), config_store_ns::pl_password_size)) {
+                wui_store_password((char *)value, config_store_ns::pl_password_size);
+            }
+        }
+    }
+
+    return 1;
+}
+
+uint8_t wui_load_ini_file() {
+    return ini_load_file(wui_ini_handler, nullptr);
+}
+
 namespace {
 
 void prusalink_password_init(void) {
+    // Init to default username
+    if (!strcmp(config_store().prusalink_username.get().data(), "")) {
+        wui_store_username((char *)PRUSA_LINK_USERNAME, config_store_ns::pl_username_size);
+    }
     if (!strcmp(config_store().prusalink_password.get().data(), "")) {
+        // Empty string -- init
         char password[config_store_ns::pl_password_size] = { 0 };
         wui_generate_password(password, config_store_ns::pl_password_size);
         wui_store_password(password, config_store_ns::pl_password_size);
     }
+    return;
 }
 
 // This is the top-level manager of network settings and interfaces.
@@ -645,6 +692,10 @@ void start_network_task(bool allow_full) {
 
 const char *wui_get_password() {
     return config_store().prusalink_password.get_c_str();
+}
+
+const char *wui_get_username() {
+    return config_store().prusalink_username.get_c_str();
 }
 
 void notify_esp_data() {

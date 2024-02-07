@@ -56,13 +56,20 @@ public:
     MI_PL_PASSWORD_VALUE();
 
     void update_explicit();
+
+protected:
+    void click(IWindowMenu &menu) override;
 };
 
-class MI_PL_USER : public IWiInfo {
-    constexpr static const char *const label = N_("User");
+class MI_PL_USER : public WiInfo<config_store_ns::pl_username_size> {
+    constexpr static const char *const label = N_("Username");
 
 public:
     MI_PL_USER();
+    void update_explicit();
+
+protected:
+    void click(IWindowMenu &menu) override;
 };
 
 class MI_PL_QRCODE final : public IWindowMenuItem {

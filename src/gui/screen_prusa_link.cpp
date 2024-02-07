@@ -10,6 +10,7 @@
 
 #include <array>
 #include <gui/frame_qr_layout.hpp>
+#include <dialog_text_input.hpp>
 
 #include "wui_api.h"
 #include <config_store/store_instance.hpp>
@@ -55,11 +56,46 @@ void MI_PL_PASSWORD_VALUE::update_explicit() {
     ChangeInformation(config_store().prusalink_password.get().data());
 }
 
+void MI_PL_PASSWORD_VALUE::click(IWindowMenu &) {
+    std::array<char, config_store_ns::pl_password_size> password = config_store().prusalink_password.get();
+
+    if (!DialogTextInput::exec(_("Password"), password)) {
+        return;
+    }
+
+    wui_store_password(password.data(), password.size());
+
+    // Notify the screen so that it updates the password display
+    Screens::Access()->Get()->WindowEvent(nullptr, GUI_event_t::CHILD_CLICK, nullptr);
+}
+
 // ----------------------------------------------------------------
 // MI_PL_USER
 // ----------------------------------------------------------------
 MI_PL_USER::MI_PL_USER()
-    : IWiInfo(string_view_utf8::MakeCPUFLASH(PRUSA_LINK_USERNAME), strlen_constexpr(PRUSA_LINK_USERNAME), _(label)) {
+    : WiInfo(_(label)) {
+    update_explicit();
+}
+
+void MI_PL_USER::update_explicit() {
+    ChangeInformation(config_store().prusalink_username.get().data());
+}
+
+void MI_PL_USER::click(IWindowMenu &) {
+    std::array<char, config_store_ns::pl_username_size> username = config_store().prusalink_username.get();
+
+    if (!DialogTextInput::exec(_("Username"), username)) {
+        return;
+    }
+
+    if (strcmp(username.data(), "")) {
+        wui_store_username(username.data(), username.size());
+    } else {
+        // Don't allow empty username
+        wui_store_username((char *)PRUSA_LINK_USERNAME, config_store_ns::pl_username_size);
+    }
+    // Notify the screen so that it updates the username display
+    Screens::Access()->Get()->WindowEvent(nullptr, GUI_event_t::CHILD_CLICK, nullptr);
 }
 
 MI_PL_QRCODE::MI_PL_QRCODE()
@@ -83,6 +119,7 @@ void ScreenMenuPrusaLink::windowEvent(window_t *sender, GUI_event_t event, void 
 
     case GUI_event_t::CHILD_CLICK:
         Item<MI_PL_PASSWORD_VALUE>().update_explicit();
+        Item<MI_PL_USER>().update_explicit();
         break;
 
     default:
@@ -104,7 +141,7 @@ ScreenPrusaLinkQRCode::ScreenPrusaLinkQRCode()
     netdev_get_ipv4_addresses(netdev_get_active_id(), &config);
 
     std::array<char, 100> buff;
-    snprintf(buff.data(), buff.size(), "http://" PRUSA_LINK_USERNAME ":%s@%lu.%lu.%lu.%lu/", wui_get_password(),
+    snprintf(buff.data(), buff.size(), "http://%s:%s@%lu.%lu.%lu.%lu/", wui_get_username(), wui_get_password(),
         (config.addr_ip4.addr >> 0) & 0xff,
         (config.addr_ip4.addr >> 8) & 0xff,
         (config.addr_ip4.addr >> 16) & 0xff,

@@ -38,6 +38,7 @@ inline constexpr size_t lan_hostname_max_len { old_eeprom::LAN_HOSTNAME_MAX_LEN 
 inline constexpr size_t connect_host_size { old_eeprom::CONNECT_HOST_SIZE };
 inline constexpr size_t connect_token_size { old_eeprom::CONNECT_TOKEN_SIZE };
 inline constexpr size_t pl_password_size { old_eeprom::PL_PASSWORD_SIZE };
+inline constexpr size_t pl_username_size { 12 };
 inline constexpr size_t wifi_max_ssid_len { old_eeprom::WIFI_MAX_SSID_LEN };
 inline constexpr size_t wifi_max_passwd_len { old_eeprom::WIFI_MAX_PASSWD_LEN };
 
