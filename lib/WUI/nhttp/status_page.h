@@ -8,6 +8,7 @@
 #include <optional>
 #include <string_view>
 #include <variant>
+#include <option/xapi_key_auth.h>
 
 #define AUTH_REALM "Printer API"
 
@@ -49,17 +50,25 @@ public:
     virtual void step(std::string_view input, bool terminated_by_client, uint8_t *output, size_t output_size, Step &out);
 };
 
+#if XAPI_KEY_AUTH()
 struct ApiKeyAuth {};
+#endif
 struct DigestAuth {
     uint64_t nonce {};
     bool nonce_stale {};
 };
+#if XAPI_KEY_AUTH()
 using AuthMethod = std::variant<DigestAuth, ApiKeyAuth>;
+#else
+using AuthMethod = std::variant<DigestAuth>;
+#endif
 class UnauthenticatedStatusPage final : public StatusPage {
 private:
     AuthMethod auth_method;
     void step(std::string_view input, bool terminated_by_client, uint8_t *output, size_t output_size, DigestAuth digest_auth, Step &out);
+#if XAPI_KEY_AUTH()
     void step(std::string_view input, bool terminated_by_client, uint8_t *output, size_t output_size, ApiKeyAuth api_key_auth, Step &out);
+#endif
 
 public:
     UnauthenticatedStatusPage(const RequestParser &parser, AuthMethod auth_method);

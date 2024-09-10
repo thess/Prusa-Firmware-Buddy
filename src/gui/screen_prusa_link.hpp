@@ -9,7 +9,7 @@
 #include <config_store/constants.hpp>
 #include <guiconfig/guiconfig.h>
 #include <MItem_network.hpp>
-#include <gui/qr.hpp>
+#include <option/xapi_key_auth.h>
 
 // ----------------------------------------------------------------
 // GUI Prusa Link Password regenerate
@@ -59,14 +59,6 @@ public:
     MI_PL_USER();
 };
 
-class MI_PL_QRCODE final : public IWindowMenuItem {
-    constexpr static const char *const label = N_("QR Code");
-
-public:
-    MI_PL_QRCODE();
-    void click(IWindowMenu &) final;
-};
-
 using ScreenMenuPrusaLink_ = ScreenMenu<EFooter::Off, MI_RETURN, MI_PL_ENABLED, MI_PL_USER,
 #if HAS_MINI_DISPLAY()
     MI_PL_PASSWORD_LABEL,
@@ -74,8 +66,7 @@ using ScreenMenuPrusaLink_ = ScreenMenu<EFooter::Off, MI_RETURN, MI_PL_ENABLED, 
     MI_PL_PASSWORD_VALUE,
     MI_IP4_ADDR,
     MI_HOSTNAME,
-    MI_PL_REGENERATE_PASSWORD,
-    MI_PL_QRCODE>;
+    MI_PL_REGENERATE_PASSWORD>;
 
 class ScreenMenuPrusaLink : public ScreenMenuPrusaLink_ {
 public:
@@ -83,14 +74,4 @@ public:
 
 protected:
     virtual void windowEvent(window_t *sender, GUI_event_t event, void *param) override;
-};
-
-class ScreenPrusaLinkQRCode final : public screen_t {
-    window_text_t text;
-    window_icon_t icon_phone;
-    QRDynamicStringWindow<100> qr;
-
-public:
-    ScreenPrusaLinkQRCode();
-    void windowEvent(window_t *, GUI_event_t, void *) final;
 };

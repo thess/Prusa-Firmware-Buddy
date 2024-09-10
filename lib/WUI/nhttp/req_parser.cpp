@@ -147,6 +147,7 @@ ExecutionControl RequestParser::event(Event event) {
         return ExecutionControl::Continue;
     }
     case Names::XApiKey: {
+#if XAPI_KEY_AUTH()
         if (!holds_alternative<ApiKeyAuthParams>(auth_status)) {
             auth_status = ApiKeyAuthParams {};
         }
@@ -170,6 +171,9 @@ ExecutionControl RequestParser::event(Event event) {
         } else {
             api_key_params = false;
         }
+#else
+        error_code = Status::MethodNotAllowed;
+#endif
         return ExecutionControl::Continue;
     }
     case Names::ContentLength:
@@ -224,14 +228,18 @@ void RequestParser::step(const std::string_view &input, bool terminated_by_clien
         return;
     }
 
+#if XAPI_KEY_AUTH()
     api_key = server->get_password();
     if (api_key && api_key[0] == '\0') {
         // An empty password means "login disabled".
         // (can be a result of generator failure)
         api_key = nullptr;
     }
+#endif
     const auto [result, consumed] = consume(input);
+#if XAPI_KEY_AUTH()
     api_key = nullptr;
+#endif
 
     if (!done && result == ExecutionControl::NoTransition) {
         // Malformed request
@@ -348,6 +356,7 @@ bool RequestParser::check_auth(const DigestAuthParams &params, Step &out) const 
     }
 }
 
+#if XAPI_KEY_AUTH()
 bool RequestParser::check_auth(const ApiKeyAuthParams &params, Step &out) const {
     if (holds_alternative<bool>(params) && get<bool>(params)) {
         return true;
@@ -356,6 +365,7 @@ bool RequestParser::check_auth(const ApiKeyAuthParams &params, Step &out) const 
         return false;
     }
 }
+#endif
 
 bool RequestParser::check_auth(Step &out) const {
     return std::visit([&](auto &params) { return check_auth(params, out); }, auth_status);
