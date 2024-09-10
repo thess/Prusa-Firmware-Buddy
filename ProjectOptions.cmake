@@ -769,3 +769,10 @@ set(MDNS
     CACHE BOOL "Enable MDNS responder"
     )
 define_boolean_option(MDNS ${MDNS})
+
+# Disable X-Api-Key authorization (Only digest mode supported)
+set(XAPI_KEY_AUTH
+    "OFF"
+    CACHE BOOL "Enable HTTP X-Api-Key header authorization"
+    )
+define_boolean_option(XAPI_KEY_AUTH ${XAPI_KEY_AUTH})

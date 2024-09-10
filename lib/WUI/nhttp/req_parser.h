@@ -47,7 +47,9 @@ namespace nhttp::handler {
 class RequestParser : public automata::Execution {
 private:
     const Server *server;
+#if XAPI_KEY_AUTH()
     const char *api_key = nullptr;
+#endif
 
 public:
     /*************   These are the parsed variables that can be used by the selector *******/
@@ -99,9 +101,12 @@ private:
         uint64_t recieved_response[2] {};
         uint64_t recieved_nonce {};
     };
+#if XAPI_KEY_AUTH()
     using ApiKeyAuthParams = std::variant<std::monostate, uint8_t, bool>;
     std::variant<DigestAuthParams, ApiKeyAuthParams> auth_status;
-
+#else
+    std::variant<DigestAuthParams> auth_status;
+#endif
     // first half of the nonce, randomly generated on
     // first use.
     static uint32_t nonce_random;
@@ -109,7 +114,9 @@ private:
     uint64_t new_nonce() const;
     bool check_digest_auth(uint64_t nonce_to_use) const;
 
+#if XAPI_KEY_AUTH()
     std::optional<std::variant<StatusPage, UnauthenticatedStatusPage>> authenticated_status(const ApiKeyAuthParams &params) const;
+#endif
     std::optional<std::variant<StatusPage, UnauthenticatedStatusPage>> authenticated_status(const DigestAuthParams &params) const;
 
     uint8_t boundary_size = 0;

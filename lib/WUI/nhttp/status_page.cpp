@@ -104,6 +104,7 @@ Step UnauthenticatedStatusPage::step(std::string_view input, bool terminated_by_
     return step_impl(input, terminated_by_client, output, output_size, auth_header);
 }
 
+#if XAPI_KEY_AUTH()
 Step UnauthenticatedStatusPage::step(std::string_view input, bool terminated_by_client, uint8_t *output, size_t output_size, [[maybe_unused]] ApiKeyAuth api_key_auth) {
 
     const char *api_key_header = "WWW-Authenticate: ApiKey realm=\"" AUTH_REALM "\"\r\n";
@@ -113,6 +114,7 @@ Step UnauthenticatedStatusPage::step(std::string_view input, bool terminated_by_
     };
     return step_impl(input, terminated_by_client, output, output_size, auth_header);
 }
+#endif // defined
 
 Step UnauthenticatedStatusPage::step(std::string_view input, bool terminated_by_client, uint8_t *output, size_t output_size) {
     return std::visit([&](auto auth) { return step(input, terminated_by_client, output, output_size, auth); }, auth_method);

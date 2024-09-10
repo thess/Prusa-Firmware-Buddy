@@ -146,6 +146,7 @@ ExecutionControl RequestParser::event(Event event) {
         return ExecutionControl::Continue;
     }
     case Names::XApiKey: {
+#if XAPI_KEY_AUTH()
         if (!holds_alternative<ApiKeyAuthParams>(auth_status)) {
             auth_status = ApiKeyAuthParams {};
         }
@@ -169,6 +170,9 @@ ExecutionControl RequestParser::event(Event event) {
         } else {
             api_key_params = false;
         }
+#else
+        error_code = Status::MethodNotAllowed;
+#endif
         return ExecutionControl::Continue;
     }
     case Names::ContentLength:
@@ -223,14 +227,18 @@ Step RequestParser::step(string_view input, bool terminated_by_client, uint8_t *
         return Step { 0, 0, Continue() };
     }
 
+#if XAPI_KEY_AUTH()
     api_key = server->get_password();
     if (api_key && api_key[0] == '\0') {
         // An empty password means "login disabled".
         // (can be a result of generator failure)
         api_key = nullptr;
     }
+#endif
     const auto [result, consumed] = consume(input);
+#if XAPI_KEY_AUTH()
     api_key = nullptr;
+#endif
 
     if (!done && result == ExecutionControl::NoTransition) {
         // Malformed request
@@ -322,6 +330,7 @@ uint64_t RequestParser::new_nonce() const {
     return (static_cast<uint64_t>(nonce_random)) << 32 | (static_cast<uint64_t>(ticks_s()));
 }
 
+#if XAPI_KEY_AUTH()
 std::optional<std::variant<StatusPage, UnauthenticatedStatusPage>> RequestParser::authenticated_status(const ApiKeyAuthParams &params) const {
     if (holds_alternative<bool>(params) and get<bool>(params)) {
         return std::nullopt;
@@ -329,6 +338,7 @@ std::optional<std::variant<StatusPage, UnauthenticatedStatusPage>> RequestParser
         return UnauthenticatedStatusPage(*this, ApiKeyAuth {});
     }
 }
+#endif
 std::optional<std::variant<StatusPage, UnauthenticatedStatusPage>> RequestParser::authenticated_status(const DigestAuthParams &params) const {
     if (nonce_random == 0) {
         if (!rand_u_secure(&nonce_random)) {
